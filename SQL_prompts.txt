@@ -1,0 +1,40 @@
+-- 1. Practice Trials Table (IK_practice)
+CREATE TABLE `IK_practice` (
+  `sonaId` VARCHAR(100) DEFAULT NULL,
+  `structural_group` VARCHAR(50) DEFAULT NULL,
+  `feedback_block_order` VARCHAR(100) DEFAULT NULL,
+  `trial_index` INT DEFAULT NULL,
+  `time_elapsed` INT DEFAULT NULL,
+  `rt` INT DEFAULT NULL,
+  `attempt_number` INT DEFAULT NULL,
+  `ingredients_chosen` VARCHAR(255) DEFAULT NULL,
+  `was_correct` TINYINT(1) DEFAULT NULL
+);
+
+-- 2. Main Experiment Trials Table (IK_responses)
+CREATE TABLE `IK_responses` (
+  `sonaId` VARCHAR(100) DEFAULT NULL,
+  `structural_group` VARCHAR(50) DEFAULT NULL,
+  `feedback_block_order` VARCHAR(100) DEFAULT NULL,
+  `trial_index` INT DEFAULT NULL,
+  `time_elapsed` INT DEFAULT NULL,
+  `rt` INT DEFAULT NULL,
+  `feedback_type` VARCHAR(50) DEFAULT NULL,
+  `round_number` INT DEFAULT NULL,
+  `attempt_number` INT DEFAULT NULL,
+  `target_recipe` VARCHAR(255) DEFAULT NULL,
+  `ingredients_chosen` VARCHAR(255) DEFAULT NULL,
+  `was_correct` TINYINT(1) DEFAULT NULL
+);
+
+-- 3. Participant Summary & Demographics Table (IK_subinfo)
+CREATE TABLE `IK_subinfo` (
+  `sonaId` VARCHAR(100) DEFAULT NULL,
+  `structural_group` VARCHAR(50) DEFAULT NULL,
+  `feedback_block_order` VARCHAR(100) DEFAULT NULL,
+  `age` INT DEFAULT NULL,
+  `gender` VARCHAR(100) DEFAULT NULL,
+  `time_elapsed` INT DEFAULT NULL,
+  `total_attempts` INT DEFAULT NULL,
+  `strategy` TEXT DEFAULT NULL
+);
