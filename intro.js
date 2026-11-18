@@ -1,7 +1,7 @@
 // ---------------------------------------------------------
 // EXPERIMENT CONFIGURATION (Change trial count here!)
 // ---------------------------------------------------------
-const number_of_rounds_per_block = 5; // Number of recipes per feedback section (e.g., 5 for pilot, 10 for full study)
+const number_of_rounds_per_block = 1; // Number of recipes per feedback section (e.g., 5 for pilot, 10 for full study) 1 for testing
 const total_recipes = number_of_rounds_per_block * 3;
 const recipe_word = number_of_rounds_per_block === 1 ? "recipe" : "recipes";
 
