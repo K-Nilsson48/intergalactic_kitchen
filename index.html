@@ -15,7 +15,7 @@
     <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
 
     <!-- Load instructions and database helper functions -->
-    <script src="intro.js"></script>
+    <script src="intro.js?v=3"></script>
 
     <style>
       /* 1. Hide the default HTML checkbox */
@@ -134,16 +134,15 @@
 
     var consent_block = {
       type: jsPsychExternalHtml,
-      url: "consent.html",
+      url: "consent.html?v=" + Date.now(),
       cont_btn: "start",
       check_fn: check_consent
     };
 
-    // GENERATE TARGET RECIPES (10 ROUNDS PER FEEDBACK SYSTEM) -----------------------------------------------------
+    // GENERATE TARGET RECIPES -------------------------------------------------------------------------------------
     const rounds_count = [];
     const rounds_correct_num = [];
     const rounds_distance = [];
-    //const number_of_rounds_per_block = 5; // 10 trials for each feedback system, 5 for the pilot (NOW SET IN INTRO.JS)
 
     function generateTargetRecipe() {
       let random_recipe = [];
@@ -236,29 +235,49 @@
     };
 
     const practice_feedback = {
-      type: jsPsychHtmlKeyboardResponse,
+      type: jsPsychHtmlButtonResponse,
       stimulus: function() {
         const last_trial_data = jsPsych.data.get().last(1).values()[0];
         const selected = last_trial_data.ingredients_chosen ? last_trial_data.ingredients_chosen.split(',') : [];
+        const goal = ['Onions', 'AP Flour'];
+        const matched_goal = selected.filter(item => goal.includes(item));
+        const extra_items = selected.filter(item => !goal.includes(item));
+        const missing_items = goal.filter(item => !selected.includes(item));
+
         if (last_trial_data.was_correct === 1) {
           return `
-            <div style="text-align: center;">
-              <h1 style="color: green;">Success!</h1>
-              <p>You got the hang of the controls!</p>
-              <p>Press any key to continue.</p>
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #2e7d32;">Success!</h1>
+              <p style="font-size: 1.15rem;">You selected <strong>Onions</strong> and <strong>AP Flour</strong>—exact match!</p>
+              <p style="color: #555;">You now have the hang of selecting ingredients and submitting your pot.</p>
             </div>
           `;
         } else {
           const user_picks = selected.length > 0 ? selected.join(', ') : 'Nothing';
+          const status_notes = [];
+          status_notes.push(`Matched target items: <strong>${matched_goal.length} of 2</strong> (${matched_goal.length > 0 ? matched_goal.join(', ') : 'none'})`);
+          if (missing_items.length > 0) {
+            status_notes.push(`Still needed: <strong>${missing_items.join(', ')}</strong>`);
+          }
+          if (extra_items.length > 0) {
+            status_notes.push(`Extra/wrong items selected: <strong>${extra_items.join(', ')}</strong>`);
+          }
+
           return `
-            <div style="text-align: center;">
-              <h1 style="color: red;">Not quite!</h1>
-              <p>You selected: <strong>${user_picks}</strong></p>
-              <p>Remember, for this practice round, select <strong>Onions</strong> and <strong>AP Flour</strong>.</p>
-              <p>Press any key to try again.</p>
+            <div style="text-align: center; max-width: 620px; margin: 0 auto;">
+              <h1 style="color: #c62828;">Practice Feedback</h1>
+              <p>You submitted: <strong>${user_picks}</strong></p>
+              <div style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 14px 20px; margin: 16px auto; text-align: left;">
+                <p style="margin: 6px 0;">${status_notes.join('<br>')}</p>
+              </div>
+              <p>Remember, for this practice round, select <strong>only Onions and AP Flour</strong>. The pot will reset automatically when you continue.</p>
             </div>
           `;
         }
+      },
+      choices: function() {
+        const last_trial_data = jsPsych.data.get().last(1).values()[0];
+        return [last_trial_data.was_correct === 1 ? 'Continue to Alien Kitchen' : 'Try Practice Again'];
       }
     };
 
@@ -353,7 +372,7 @@
     };
 
     const feedback_trial = {
-      type: jsPsychHtmlKeyboardResponse,
+      type: jsPsychHtmlButtonResponse,
       stimulus: function() {
         const current_feedback_type = jsPsych.timelineVariable('feedback_type');
 
@@ -370,6 +389,9 @@
         } else {
           return getDistanceFeedback(last_user_selection, current_secret_recipe, ingredient_pool);
         }
+      },
+      choices: function() {
+        return [recipe_matched ? 'Next Recipe' : 'Next Attempt (Pot Resets)'];
       },
       on_finish: function() {
         if (recipe_matched) {
@@ -391,13 +413,16 @@
 
     // POST-EXPERIMENT SURVEYS & COMPLETION ------------------------------------------------------------------------
     const final_points = {
-      type: jsPsychHtmlKeyboardResponse,
+      type: jsPsychHtmlButtonResponse,
       stimulus: function() {
-        return "Congrats! You completed all " + (number_of_rounds_per_block * 3) + " recipes in the Intergalactic Kitchen!<br><br>" +
-               "You solved all of the secret recipes in <b>" + total_main_attempts + "</b> total attempts.<br><br>" +
-               "We have a few quick questions for you before the experiment is finished. Please continue onto the next page by pressing the SPACE bar.<br><br>";
+        return `<div style="max-width: 680px; margin: 0 auto; text-align: center; line-height: 1.6;">
+                  <h1>All Recipes Complete!</h1>
+                  <p>Congrats! You completed all <strong>${total_recipes}</strong> ${recipe_word} in the Intergalactic Kitchen.</p>
+                  <p>You solved all of the secret recipes in <strong>${total_main_attempts}</strong> total attempts.</p>
+                  <p>We have a few quick questions for you before the experiment is finished.</p>
+                </div>`;
       },
-      choices: [" "],
+      choices: ["Continue to Questions"],
       data: {
         type: "final_points",
         total_attempts: function() {
@@ -455,7 +480,7 @@
 
     var debriefing_block = {
       type: jsPsychExternalHtml,
-      url: "debrief.htmlv=" + Date.now(),
+      url: "debrief.html?v=" + Date.now(),
       cont_btn: "start"
     };
 
